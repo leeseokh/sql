@@ -1,6 +1,2 @@
-SELECT *
-FROM emp;
-
-select *
-from emp;
-
+SELECT empno, ename
+FROM EMP;
