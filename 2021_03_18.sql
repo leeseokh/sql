@@ -262,7 +262,167 @@ SELECT MAX(sal), MIN(sal), ROUND(AVG(sal)), SUM(sal),
 FROM emp
 GROUP BY ;
 
-emp테이블을 이욯애
+emp테이블을 이용해
+
+grp 3
+emp테이블을 이용하여 다음을 구하시오.
+grp2에서 작성한 쿼리를 활용하여 deptno 대신 부서명이 나오수 있도록 수정하시오.
+
+SELECT                --CASE문이용
+FROM emp
+GROUP BY CASE
+    WHEN deptno =10 THEN 'ACCOUNTING',
+    ...
+    ELSE 'DITT'
+    END
+    
+grp4
+emp 테이블을 이용하여 다음을 구하시오.
+emp테이블을 이용하여 다음을 구하시오.
+직원의 입사 년월별로 몇명의 직원이 입사했는지 조회하는 쿼리를 만들세요
+
+SELECT TO_CHAR(hiredate, 'YYYYMM'), COUNT(*)cnt
+FROM emp
+GROUP BY TO_CHAR(hiredate, 'YYYYMM');
+
+grp5
+emp테이블에서 이용하여 다음으 구하시오
+직원의 입사 년별로 몇명의 직원이 입사했는지 조회하는 쿼리를 작성하세요.
+SELECT TO_CHAR(hiredate, 'YYYY'), COUNT(*)cnt
+FROM emp
+GROUP BY TO_CHAR(hiredate, 'YYYY');
+
+grp6
+회사에 존재하는 부서의 개수는 몇개인지 조회하는 쿼리를 만들세요 (dept테이블)
+SELECT COUNT (*)
+FROM dept;
+
+grp7 직원이 속한 부서의 개수를 조회하는 쿼리emp사용
+SELECT COUNT(*)
+FROM
+(SELECT deptno  
+FROM emp
+GROUP BY deptno);                  --인라인으로 묶으면 3개의 행
+
+JOIN
+RDBMS는 중복을 최소화 하는 형태의 데이터 베이스
+다른 테이블과 결합하여 데이터를 조회
+--dept 테이블을 변경해주면 emp테이블도 변경됨.       세일즈 > 마케팅세일즈로 변경 깨끗하게 변경과 중복을 할까 없는 데이터는 join을 이용해 결합.
+
+데이터를 확장(결합)
+1. 컬럼에 대하 확장 :JOIN
+2. 행에 대한 확장 : 집합연산자( UNION ALL(중복 포함 합집합), UNION(합집합), MINUS(차집합), INTERSECT(교집합)
+emp 테이블엔 부서코드만 존재, 부서정보를 담은 dept 테이블 별도로 생성
+emp 테이블과 dept테이블의 연결고리(deptno)로 조인하여 실제 부서명을 조회한다.
+
+JOIN 
+1.표준 SQL - ANSI SQL
+2.비표준 SQL- DBMS를 만드는 회사에서 만든 고유의 SQL 문법
+
+ANSI - NATURAL JOIN
+   조인하고자 하는 테이블의 연결 컬럼명(타입도)이 동일한 경우(emp, deptno, dept)
+   연결 컬럼의 값이 동일할 때 (=)컬럼이 확장된다
+
+SELECT *
+FROM emp NATURAL JOIN dept;
+
+SELECT emp.ename            -- NATURAL 연결고리 콜론이라 한종자는 쓰지 않는다. emp.ename, emp.sal 등.
+FROM emp NATURAL JOIN dept;
+
+Oracle join :
+1. FROM절에 조인할 테이블을 (,) 콤마로 구분하여 나열
+2. WHERE : 조인할 테이블의 연결조건을 기술
+
+SELECT *    -- 오라클 조인법.
+FROM emp, dept
+WHERE emp.deptno = dept.deptno;
+
+7369 SMITH, 7902 FORD
+SELECT e.empno, e.ename, m.empno, m.mgr
+FROM emp e, emp m
+WHERE e.mgr = m.empno;
+
+ANSI SQL : JOIN WITH USING
+조인 하려고 하는 테이블의 컬럼명과 타입이 같은 컬럼이 두개 이상인 상황에서 두 컬럼을 모두 조인 조건으로 참여시키지 않고, 개발자가 원하는
+특정 컬럼으로만 연결을 시키고 싶을 때 사용
+
+SELECT *
+FROM emp JOIN dept USING(deptno);   --대체가 있어서 넘어가도 됨.
+           --아래위 같은거 아니네.?
+SELECT*
+FROM emp, dept
+WHERE emp.deptno = dept.deptno;  --> 동일 아래 조인위드온 과
+
+JOIN WITH ON : NATURAL JOIN, JOIN WITH USING을 대체 할 수 있는보편적인 문법 ★
+조인 컬럼 조건을 개발자가 임의로 지정
+
+SELECT *
+FROM emp JOIN dept ON (emp.deptno = dept.deptno)
+
+--사원번호, 사원이름, 해당사원의 상사 사번, 해당사원의 상사 이름: JOIN WITH ON을 이용하여 쿼리 작성
+--단 사원의 번호가 7365 에서 7698 사이
+
+SELECT e.empno, e.ename, m.empno, m.ename
+FROM emp e JOIN  emp m ON(e.mgr = m.empno)) -- 목적?
+WHERE e.empno  BETWEEN 7365 AND 7698;
+
+SELECT e.empno, e.ename, m.empno, m.ename
+FROM emp e, emp m 
+WHERE e.empno  BETWEEN 7365 AND 7698
+AND e.mgr = m.empno; --오라클 방식
+
+논리적인 조인 형태 --이해 하면서 암기 노 용어 그닥 중요 x
+1. SELF JOIN :조인 테이블이 같은경우 - 계층구조
+
+2. ★ NONEQUI - JOIN : 조인 조건이 =(equals)S가 아닌 조인 
+
+SELECT *
+FROM emp, dept
+WHERE emp.deptno = dept.deptno; --> 연결조건
+
+SELECT *
+FROM emp, dept          -->> 시험에 나와용~!!~~!
+WHERE emp.deptno ! = dept.deptno; --> 연결조건 자기와 같은 조건 빼고 나옴
+
+SELECT *
+FROM salgrade;
+
+--salgrade를 이용하여 직원의 급여 등급 구하기
+--empno, ename, sal, 급여 등급
+SELECT e.empno, e.ename, e.sal, e.grade
+FROM emp e, salgrade s
+WHERE emp.sal BETWEEN s.lowsal AND s.hisal;
+
+join-1
+emp, dept 테이블을 이용하여 다음과 같이 조회되도록 쿼리를 작성하세요.
+SELECT empno, ename, emp.deptno, dname 
+FROM emp, dept
+WHERE emp.deptno = dept.deptno;
+
+join0_1
+emp dept 이용 부서번호 10.30인 데이터만
+SELECT empno, ename, emp.deptno, dname 
+FROM emp, dept
+WHERE emp.deptno IN(10, 30);
+
+JOIN0_2
+emp,dept 테이블 이용해 다음과 같이 급여 2500초과
+SELECT empno, ename, sal, emp.deptno, dname, dept.deptno
+FROM emp, dept
+WHERE emp.deptno = dept.deptno AND sal > 2500;
+
+join0_3
+급여 2500초과, 사번이 7600보다 큰 직원
+SELECT empno, ename, sal, emp.deptno, dname
+FROM emp, dept
+WHERE emp.deptno = dept.deptno AND sal > 2500 AND empno>7600;
+
+join0_4
+급여 2500초과 사번 7600 크고 RESEARCH 부서에 속하는
+SELECT empno, ename, sal, emp.deptno, dname
+FROM emp, dept
+WHERE emp.deptno = dept.deptno AND sal > 2500 AND empno>7600
+AND dname = 'RESEARCH';
 
 
 
